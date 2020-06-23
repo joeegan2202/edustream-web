@@ -5,22 +5,22 @@ import './App.css'
 import Auth from './Auth'
 
 function App() {
-    return (
-        <Router>
-            <div className="App">
-                <header className="App-header">
-                    <Link to="/">Go home!</Link>
-                    <Link to="/auth">Go to Auth!</Link>
-                </header>
+  return (
+    <Router>
+      <div className="App">
+        <header className="App-header">
+          <Link to="/">Go home!</Link>
+          <Link to="/auth">Go to Auth!</Link>
+        </header>
 
-                <Switch>
-                    <Route path="/auth">
-                        <Auth />
-                    </Route>
-                </Switch>
-            </div>
-        </Router>
-    )
+        <Switch>
+          <Route path="/auth">
+            <Auth />
+          </Route>
+        </Switch>
+      </div>
+    </Router>
+  )
 }
 
 export default App
