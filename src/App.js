@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom"
 import './App.css'
 
 import Auth from './Auth'
+import Watch from './Watch'
 
 function App() {
   return (
@@ -16,6 +17,9 @@ function App() {
         <Switch>
           <Route path="/auth">
             <Auth />
+          </Route>
+          <Route path="/watch">
+            <Watch></Watch>
           </Route>
         </Switch>
       </div>

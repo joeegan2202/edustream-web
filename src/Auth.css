@@ -1,3 +1,30 @@
 .Auth {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+#login-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 20em;
+  height: 10em;
+  background-color: lightgray;
+}
+
+#login-card h1 {
+  margin: 0px 0px 10px 0px;
   text-align: center;
+  width: 100%;
+  border-bottom: black 2px solid;
+  flex: 1;
+}
+
+#login-card form {
+  margin-top: 2em;
+  flex: 5;
 }
