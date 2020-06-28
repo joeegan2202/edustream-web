@@ -1,0 +1,15 @@
+.Admin {
+  padding: 5em;
+  padding-top: calc(10vh + 5em);
+}
+
+.Admin-Camera {
+  padding: 5em;
+  padding-top: calc(10vh + 5em);
+}
+
+.healthy {
+  display: inline;
+  font-weight: bold;
+  color: #30FF50;
+}

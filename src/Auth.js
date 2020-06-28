@@ -1,6 +1,7 @@
 import React from 'react'
 import { withRouter } from 'react-router-dom'
 import { Combobox, ComboboxInput, ComboboxPopover, ComboboxList, ComboboxOption } from "@reach/combobox"
+import Button from 'react-bootstrap/Button'
 import "@reach/combobox/styles.css"
 import './Auth.css'
 
@@ -23,20 +24,46 @@ class Auth extends React.Component {
           <div id="login-card">
             <h1>Logged in!</h1>
 
-            <form onSubmit={() => {
+            <form onSubmit={(e) => {
+              e.preventDefault()
               let school = document.querySelector('#school input').value
 
               switch (school) {
                 case "A":
-                  history.push('/admin')
+                  fetch(`https://api.edustream.live/auth/?sid=fda734d93365f6ac6ced0f3d0c85aad460e1a8fc317c998c15546f6ab3d56f73&uname=admin`).then(data => data.json()).then(output => {
+                    if (output.status) {
+                      window.sessionStorage.setItem('session', output.session)
+                      history.push('/admin')
+                    } else {
+                      console.log(output)
+                      window.alert("Error! " + output.err)
+                    }
+                  })
                   break
                 case "S":
-                  history.push('/watch?role=student')
+                  fetch(`https://api.edustream.live/auth/?sid=fda734d93365f6ac6ced0f3d0c85aad460e1a8fc317c998c15546f6ab3d56f73&uname=jeegan21`).then(data => data.json()).then(output => {
+                    if (output.status) {
+                      window.sessionStorage.setItem('session', output.session)
+                      history.push('/watch?role=student')
+                    } else {
+                      console.log(output)
+                      window.alert("Error! " + output.err)
+                    }
+                  })
                   break
                 case "T":
-                  history.push('/watch?role=teacher')
+                  fetch(`https://api.edustream.live/auth/?sid=fda734d93365f6ac6ced0f3d0c85aad460e1a8fc317c998c15546f6ab3d56f73&uname=jeegan21`).then(data => data.json()).then(output => {
+                    if (output.status) {
+                      window.sessionStorage.setItem('session', output.session)
+                      history.push('/watch?role=teacher')
+                    } else {
+                      console.log(output)
+                      window.alert("Error! " + output.err)
+                    }
+                  })
                   break
               }
+
             }}>
               <Combobox className="Combobox" id="school">
                 <ComboboxInput onChange={event => this.setState({ term: event.target.value })} />
@@ -58,7 +85,7 @@ class Auth extends React.Component {
 
         <div className="Auth">
           <div id="login-card">
-            <button onClick={() => this.setState({ loggedIn: !this.state.loggedIn })}>Log in</button>
+            <Button onClick={() => this.setState({ loggedIn: !this.state.loggedIn })}>Log in</Button>
           </div>
         </div>
     )
