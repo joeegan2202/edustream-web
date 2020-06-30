@@ -101,7 +101,11 @@ class Camera extends React.Component {
         <Button onClick={() => this.setState({ editPopup: <CameraEdit camera="new" closeEdit={closeEdit.bind(this)} /> })}>Add Camera</Button>
         <ListGroup>
           {this.state.cameras.map((camera, id) => {
-            return <ListGroup.Item action variant="primary" key={id} onClick={() => this.setState({ editPopup: <CameraEdit camera={camera} closeEdit={closeEdit.bind(this)} /> })}>Room #: {camera.room} Address: {camera.address} Streaming: {camera.streaming} Recording: {camera.recording}</ListGroup.Item>
+            return <div className="camera-list"><ListGroup.Item action variant="primary" key={id} onClick={() => this.setState({ editPopup: <CameraEdit camera={camera} closeEdit={closeEdit.bind(this)} /> })}>Room #: {camera.room} Address: {camera.address} Streaming: {camera.streaming} Recording: {camera.recording}</ListGroup.Item><Button variant="success" onClick={() => {
+
+              fetch(`https://api.edustream.live/admin/start/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&cameraId=${camera.id}`)
+            }
+            }>Start Camera</Button></div>
           })}
         </ListGroup>
         {this.state.editPopup}

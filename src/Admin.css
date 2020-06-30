@@ -13,3 +13,16 @@
   font-weight: bold;
   color: #30FF50;
 }
+
+.camera-list {
+  display: flex;
+  padding: .5em;
+}
+
+.camera-list button {
+  flex: 4;
+}
+
+.camera-list .btn {
+  flex: 1;
+}
