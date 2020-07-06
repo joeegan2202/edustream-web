@@ -1,0 +1,33 @@
+.StreamPlayer {
+  margin-top: 10vh;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+}
+#col1 {
+  flex: 67%;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  margin: 0px;
+}
+#col2 {
+  flex: 33%;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  margin: 0px;
+  overflow: auto;
+}
+
+video {
+  background-color: black;
+  margin: 1em;
+  height: 67%;
+  max-width: 100%;
+}
+
+#col1 p {
+  overflow: auto;
+}
+
