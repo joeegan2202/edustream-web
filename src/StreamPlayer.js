@@ -11,13 +11,11 @@ class StreamPlayer extends React.Component {
 
     let session = window.sessionStorage.getItem('session')
 
-    if (!session) {
-      history.push('/auth')
-    }
+    console.log(this.props)
 
     this.state = {
       session,
-      source: `https://api.edustream.live/stream/${session}/stream.m3u8`,
+      source: `https://api.edustream.live/stream/${this.props.streamPath}/stream.m3u8`,
       errors: []
     }
   }

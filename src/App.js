@@ -31,6 +31,9 @@ class App extends React.Component {
             <Route exact path="/admin">
               <Admin />
             </Route>
+            <Route exact path="/admin/watch">
+              <Watch />
+            </Route>
             <Route exact path="/admin/cameras">
               <Admin.Camera />
             </Route>
