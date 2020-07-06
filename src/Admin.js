@@ -107,11 +107,17 @@ class Camera extends React.Component {
         <Button variant="success" onClick={() => fetch(`https://api.edustream.live/admin/start/all/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`)}>Start All Cameras</Button>
         <ListGroup>
           {this.state.cameras.map((camera, id) => {
-            return <div className="camera-list" key={id}><ListGroup.Item action variant="primary" onClick={() => this.setState({ editPopup: <CameraEdit camera={camera} closeEdit={closeEdit.bind(this)} /> })}>Room #: {camera.room} Address: {camera.address} Streaming: {camera.streaming} Recording: {camera.recording}</ListGroup.Item><Button variant="success" onClick={() => {
+            return <div className="camera-list" key={id}><ListGroup.Item action variant="primary" onClick={() => this.setState({ editPopup: <CameraEdit camera={camera} closeEdit={closeEdit.bind(this)} /> })}>Room #: {camera.room} Address: {camera.address} Streaming: {camera.streaming} Recording: {camera.recording}</ListGroup.Item>{
+              camera.streaming === 0 ? <Button variant="success" onClick={() => {
 
-              fetch(`https://api.edustream.live/admin/start/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&cameraId=${camera.id}`)
-            }
-            }>Start Camera</Button>
+                fetch(`https://api.edustream.live/admin/start/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&cameraId=${camera.id}`)
+              }
+              }>Start Camera</Button> :
+                <Button variant="danger" onClick={() => {
+
+                  fetch(`https://api.edustream.live/admin/stop/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&cameraId=${camera.id}`)
+                }
+                }>Stop Camera</Button>}
               <a href={`/admin/watch?role=admin&room=${camera.room}`}><Button variant="primary">Watch</Button></a></div>
           })}
         </ListGroup>
