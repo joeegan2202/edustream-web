@@ -8,6 +8,18 @@
   padding-top: calc(10vh + 5em);
 }
 
+.Admin .row {
+  margin: 1em;
+}
+
+.Admin .row .col {
+  margin: 1em;
+}
+
+.card {
+  text-align: center;
+}
+
 .healthy {
   display: inline;
   font-weight: bold;
@@ -49,4 +61,9 @@
   position: relative;
   padding: 3em;
   background-color: white;
+}
+
+.Import {
+  padding: 5em;
+  padding-top: calc(10vh + 5em);
 }

@@ -13,6 +13,8 @@ class Auth extends React.Component {
       loggedIn: false,
       term: ''
     }
+
+    window.localStorage.setItem("sid", "fda734d93365f6ac6ced0f3d0c85aad460e1a8fc317c998c15546f6ab3d56f73")
   }
 
   render() {
@@ -30,7 +32,7 @@ class Auth extends React.Component {
 
               switch (school) {
                 case "A":
-                  fetch(`https://api.edustream.live/auth/?sid=fda734d93365f6ac6ced0f3d0c85aad460e1a8fc317c998c15546f6ab3d56f73&uname=admin`).then(data => data.json()).then(output => {
+                  fetch(`https://api.edustream.live/auth/?sid=${window.localStorage.getItem('sid')}&uname=admin`).then(data => data.json()).then(output => {
                     if (output.status) {
                       window.sessionStorage.setItem('session', output.session)
                       history.push('/admin')
@@ -41,7 +43,7 @@ class Auth extends React.Component {
                   })
                   break
                 case "S":
-                  fetch(`https://api.edustream.live/auth/?sid=fda734d93365f6ac6ced0f3d0c85aad460e1a8fc317c998c15546f6ab3d56f73&uname=jeegan21`).then(data => data.json()).then(output => {
+                  fetch(`https://api.edustream.live/auth/?sid=${window.localStorage.getItem('sid')}&uname=jeegan21`).then(data => data.json()).then(output => {
                     if (output.status) {
                       window.sessionStorage.setItem('session', output.session)
                       history.push('/watch?role=student')
@@ -52,7 +54,7 @@ class Auth extends React.Component {
                   })
                   break
                 case "T":
-                  fetch(`https://api.edustream.live/auth/?sid=fda734d93365f6ac6ced0f3d0c85aad460e1a8fc317c998c15546f6ab3d56f73&uname=jeegan21`).then(data => data.json()).then(output => {
+                  fetch(`https://api.edustream.live/auth/?sid=${window.localStorage.getItem('sid')}&uname=jeegan21`).then(data => data.json()).then(output => {
                     if (output.status) {
                       window.sessionStorage.setItem('session', output.session)
                       history.push('/watch?role=teacher')

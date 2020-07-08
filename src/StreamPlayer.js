@@ -21,37 +21,29 @@ class StreamPlayer extends React.Component {
   }
 
   componentDidMount() {
-    fetch(`https://api.edustream.live/request/?sid=fda734d93365f6ac6ced0f3d0c85aad460e1a8fc317c998c15546f6ab3d56f73&session=${this.state.session}`).then(data => data.json()).then(output => {
-      if (!output.status) {
-        this.state.errors.push({ title: "Bad Session Request!", message: "Failure while fetching to request session!" })
-        this.setState({})
+    var video = document.querySelector('video');
+    if (Hls.isSupported()) {
+      let hls = new Hls();
+      console.log("HLS is supported")
+      hls.loadSource(this.state.source);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, function () {
+        console.log("Attached!")
+        video.play()
+      });
+      hls.on(Hls.Events.ERROR, function (event, data) {
+        console.log(data)
+      });
 
-      } else {
-        var video = document.querySelector('video');
-        if (Hls.isSupported()) {
-          let hls = new Hls();
-          console.log("HLS is supported")
-          hls.loadSource(this.state.source);
-          hls.attachMedia(video);
-          hls.on(Hls.Events.MANIFEST_PARSED, function () {
-            console.log("Attached!")
-            video.play()
-          });
-          hls.on(Hls.Events.ERROR, function (event, data) {
-            console.log(data)
-          });
+      this.setState({ hls })
+    }
 
-          this.setState({ hls })
-        }
-
-        else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-          video.src = this.state.source;
-          video.addEventListener('loadedmetadata', function () {
-            video.play();
-          });
-        }
-      }
-    })
+    else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = this.state.source;
+      video.addEventListener('loadedmetadata', function () {
+        video.play();
+      });
+    }
   }
 
   componentWillUnmount() {

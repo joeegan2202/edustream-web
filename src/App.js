@@ -20,7 +20,7 @@ class App extends React.Component {
       <Router>
         <div className="App">
           <header className="App-header">
-            <Link to="/">Go home!</Link>
+            <Link to="/"><h1>Go home!</h1></Link>
             <Link to="/auth">Go to Auth!</Link>
           </header>
 
@@ -36,6 +36,9 @@ class App extends React.Component {
             </Route>
             <Route exact path="/admin/cameras">
               <Admin.Camera />
+            </Route>
+            <Route exact path="/admin/import">
+              <Admin.Import />
             </Route>
             <Route path="/auth">
               <Auth />

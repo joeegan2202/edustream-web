@@ -7,6 +7,7 @@ class Watch extends React.Component {
     super(props)
 
     let session = window.sessionStorage.getItem('session')
+    let sid = window.localStorage.getItem('sid')
 
     if (!session) {
       history.push('/auth')
@@ -15,7 +16,7 @@ class Watch extends React.Component {
     let params = new URLSearchParams(this.props.location.search)
 
     this.state = {
-      streamPath: params.get("role") == 'admin' ? `${session}/${params.get("room")}` : session
+      streamPath: params.get("role") == 'admin' ? `${sid}/${session}/${params.get("room")}` : `${sid}/${session}`
     }
   }
 
