@@ -44,7 +44,7 @@
   height: 100%;
 }
 
-.CameraEdit {
+.Edit {
   position: fixed;
   z-index: 2;
   background-color: #00000070;
@@ -56,7 +56,7 @@
   right: 0;
 }
 
-.CameraEdit form {
+.Edit form {
   margin: 20vh;
   position: relative;
   padding: 3em;
@@ -64,6 +64,11 @@
 }
 
 .Import {
+  padding: 5em;
+  padding-top: calc(10vh + 5em);
+}
+
+.ImportPeople {
   padding: 5em;
   padding-top: calc(10vh + 5em);
 }

@@ -20,8 +20,8 @@ class App extends React.Component {
       <Router>
         <div className="App">
           <header className="App-header">
-            <Link to="/"><h1>Go home!</h1></Link>
-            <Link to="/auth">Go to Auth!</Link>
+            <Link to="/" className="HeaderText"><h1>Go home!</h1></Link>
+            <Link to="/auth" className="HeaderImg"><img src="/avataricon.svg" alt="Go to Auth!" /></Link>
           </header>
 
           <Switch>
@@ -39,6 +39,18 @@ class App extends React.Component {
             </Route>
             <Route exact path="/admin/import">
               <Admin.Import />
+            </Route>
+            <Route exact path="/admin/import/people">
+              <Admin.ImportPeople />
+            </Route>
+            <Route exact path="/admin/import/classes">
+              <Admin.ImportClasses />
+            </Route>
+            <Route exact path="/admin/import/roster">
+              <Admin.ImportRoster />
+            </Route>
+            <Route exact path="/admin/import/periods">
+              <Admin.ImportPeriods />
             </Route>
             <Route path="/auth">
               <Auth />
