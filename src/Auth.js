@@ -1,6 +1,9 @@
 import React from 'react'
+import crypto from 'crypto'
 import { withRouter } from 'react-router-dom'
 import { Combobox, ComboboxInput, ComboboxPopover, ComboboxList, ComboboxOption } from "@reach/combobox"
+import InputGroup from 'react-bootstrap/InputGroup'
+import FormControl from 'react-bootstrap/FormControl'
 import Button from 'react-bootstrap/Button'
 import "@reach/combobox/styles.css"
 import './Auth.css'
@@ -87,7 +90,45 @@ class Auth extends React.Component {
 
         <div className="Auth">
           <div id="login-card">
-            <Button onClick={() => this.setState({ loggedIn: !this.state.loggedIn })}>Log in</Button>
+            <form onSubmit={e => {
+              e.preventDefault()
+
+              let uname = document.querySelector('#uname input').value
+              let pword = document.querySelector('#pword input').value
+              let hash = crypto.createHash('sha256')
+              hash.update(pword)
+
+              fetch(`https://api.edustream.live/auth/pass/?sid=${window.localStorage.getItem('sid')}&uname=${uname}`, {
+                method: 'POST',
+                body: hash.digest('hex')
+              }).then(data => data.json()).then(output => {
+                if (output.status) {
+                  window.sessionStorage.setItem('session', output.session)
+                  if (output.role == 'A') {
+                    history.push('/admin')
+                  } else {
+                    history.push('/watch?role=student')
+                  }
+                } else {
+                  console.log(output)
+                  window.alert("Error! " + output.err)
+                }
+              })
+            }}>
+              <InputGroup id="uname">
+                <InputGroup.Prepend>
+                  <InputGroup.Text>Username</InputGroup.Text>
+                </InputGroup.Prepend>
+                <FormControl placeholder="Username" />
+              </InputGroup>
+              <InputGroup id="pword">
+                <InputGroup.Prepend>
+                  <InputGroup.Text>Password</InputGroup.Text>
+                </InputGroup.Prepend>
+                <FormControl type="password" placeholder="Password" />
+              </InputGroup>
+              <Button type="submit">Log in</Button>
+            </form>
           </div>
         </div>
     )

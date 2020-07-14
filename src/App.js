@@ -52,6 +52,9 @@ class App extends React.Component {
             <Route exact path="/admin/import/periods">
               <Admin.ImportPeriods />
             </Route>
+            <Route exact path="/admin/import/auth">
+              <Admin.ImportAuth />
+            </Route>
             <Route path="/auth">
               <Auth />
             </Route>

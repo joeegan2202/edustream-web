@@ -273,6 +273,14 @@ class Import extends React.Component {
             history.push('/admin/import/periods')
           }}>Edit Manually</Button>
         </form>
+        <form>
+          <label>Authenticated Users</label>
+          <input type="file" id="authfile"></input>
+          <Button type="submit">Submit Form</Button>
+          <Button variant="primary" onClick={() => {
+            history.push('/admin/import/auth')
+          }}>Edit Manually</Button>
+        </form>
       </div>
     )
   }
@@ -556,7 +564,6 @@ class ImportRoster extends React.Component {
     return (
       <Container className="Import ImportRoster">
         <Button onClick={() => this.setState({ editPopup: <RosterEdit roster={{}} closeEdit={closeEdit.bind(this)} /> })}>Add Roster</Button>
-        {/*<Button variant="danger" onClick={() => fetch(`https://api.edustream.live/admin/stop/all/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`)}>Stop All Cameras</Button>*/}
         <ListGroup>
           {this.state.roster.map((entry, id) => {
             return <div className="List RosterList" key={id}><ListGroup.Item action variant="primary" onClick={() => this.setState({
@@ -765,11 +772,121 @@ class PeriodEdit extends React.Component {
   }
 }
 
+class ImportAuth extends React.Component {
+  constructor(props) {
+    super(props)
+
+    let session = window.sessionStorage.getItem('session')
+
+    if (!session) {
+      history.push('/auth')
+    }
+
+    this.state = {
+      session,
+      auth: [],
+      editPopup: null
+    }
+  }
+
+  updateAuth() {
+    fetch(`https://api.edustream.live/admin/read/auth/?sid=${window.localStorage.getItem('sid')}&session=${this.state.session}`).then(data => data.json()).then(output => {
+      this.setState({ auth: output.auth || [] })
+    })
+  }
+
+  componentDidMount() {
+    console.log(this.props)
+    this.updateAuth()
+  }
+
+  render() {
+    let closeEdit = () => {
+      this.setState({ editPopup: null })
+      this.updateAuth()
+    }
+
+    return (
+      <Container className="ImportAuth">
+        <Button onClick={() => this.setState({ editPopup: <AuthEdit auth={{}} closeEdit={closeEdit.bind(this)} /> })}>Add Authenitcated User</Button>
+        <ListGroup>
+          {this.state.auth.map((auth, id) => {
+            return <div className="auth-list" key={id}><ListGroup.Item action variant="primary" onClick={() => this.setState({
+              editPopup: <AuthEdit auth={auth} closeEdit={closeEdit.bind(this)} /> 
+            })}>ID: {auth.pid} Username: {auth.uname}</ListGroup.Item></div>
+          })}
+        </ListGroup>
+        {this.state.editPopup}
+      </Container>
+    )
+  }
+}
+
+class AuthEdit extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      auth: props.auth
+    }
+  }
+
+  render() {
+    return (
+      <div className="Edit AuthEdit">
+        <form onSubmit={e => {
+          e.preventDefault()
+
+          let pid = document.querySelector('#pid input').value
+          let pword = document.querySelector('#pword input').value
+
+          let hash = crypto.createHash('sha256')
+          hash.update(pword)
+
+          fetch(`https://api.edustream.live/admin/update/auth/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&pid=${pid}`, {
+            method: "POST",
+            body: hash.digest('hex')
+          }).then(response => response.json()).then(data => {
+            console.log(data)
+            if (data.status) {
+              this.props.closeEdit()
+            }
+          })
+        }}>
+          <InputGroup>
+            <InputGroup.Prepend>
+              <InputGroup.Text>Username</InputGroup.Text>
+            </InputGroup.Prepend>
+            <FormControl value={this.props.auth.uname} readOnly />
+          </InputGroup>
+          <InputGroup id="pid" >
+            <InputGroup.Prepend>
+              <InputGroup.Text>PersonID</InputGroup.Text>
+            </InputGroup.Prepend>
+            <FormControl placeholder="PersonID" defaultValue={this.props.auth.pid} />
+          </InputGroup>
+          <InputGroup id="pword">
+            <InputGroup.Prepend>
+              <InputGroup.Text>Password</InputGroup.Text>
+            </InputGroup.Prepend>
+            <FormControl type="password" placeholder="Password" />
+          </InputGroup>
+
+          <Button onClick={this.props.closeEdit}>Close</Button>
+          <Button type="submit">Save Authenticated User</Button>
+        </form>
+      </div>
+    )
+  }
+}
+
+
 Admin.Camera = withRouter(Camera)
 Admin.Import = withRouter(Import)
 Admin.ImportPeople = withRouter(ImportPeople)
 Admin.ImportClasses = withRouter(ImportClasses)
 Admin.ImportRoster = withRouter(ImportRoster)
 Admin.ImportPeriods = withRouter(ImportPeriods)
+Admin.ImportAuth = withRouter(ImportAuth)
 
 export default withRouter(Admin)

@@ -1,9 +1,10 @@
-.StreamPlayer {
+.Watch {
   margin-top: 10vh;
   display: flex;
   flex-direction: row;
   overflow: hidden;
 }
+
 #col1 {
   flex: 67%;
   height: 90vh;
@@ -11,6 +12,7 @@
   flex-direction: column;
   margin: 0px;
 }
+
 #col2 {
   flex: 33%;
   height: 90vh;
@@ -20,10 +22,16 @@
   overflow: auto;
 }
 
-video {
+.StreamPlayer {
   background-color: black;
   margin: 1em;
   height: 67%;
+  max-width: 100%;
+  display: flex;
+}
+
+.StreamPlayer video {
+  max-height: 100%;
   max-width: 100%;
 }
 
@@ -31,3 +39,14 @@ video {
   overflow: auto;
 }
 
+.ShoutOuts {
+  margin: 1em;
+}
+
+.ShoutOuts i {
+  font-size: .8em;
+}
+
+.ShoutOuts b {
+  font-size: .8em;
+}
