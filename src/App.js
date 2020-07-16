@@ -27,6 +27,9 @@ class App extends React.Component {
                 <img src="/avataricon.svg" alt="Go to Auth!" />
               </Dropdown.Toggle>
               <Dropdown.Menu>
+                <Dropdown.Item href="/auth">
+                  Watch
+                </Dropdown.Item>
                 <Dropdown.Item onClick={() => {
                   window.sessionStorage.setItem('session', '')
                   this.setState({})
