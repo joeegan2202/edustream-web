@@ -1,7 +1,8 @@
 import React from 'react'
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom"
 import './App.css'
-
+import Dropdown from 'react-bootstrap/Dropdown'
+import Button from 'react-bootstrap/Button'
 import Auth from './Auth'
 import Admin from './Admin'
 import Watch from './Watch'
@@ -21,7 +22,17 @@ class App extends React.Component {
         <div className="App">
           <header className="App-header">
             <Link to="/" className="HeaderText"><h1>Go home!</h1></Link>
-            <Link to="/auth" className="HeaderImg"><img src="/avataricon.svg" alt="Go to Auth!" /></Link>
+            {window.sessionStorage.getItem('session') != '' ? <Dropdown>
+              <Dropdown.Toggle as="div" className="HeaderAuth">
+                <img src="/avataricon.svg" alt="Go to Auth!" />
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item onClick={() => {
+                  window.sessionStorage.setItem('session', '')
+                  this.setState({})
+                }}>Logout</Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown> : <Link to="/auth" className="HeaderAuth"><Button variant="primary">Log In</Button></Link>}
           </header>
 
           <Switch>
@@ -56,7 +67,7 @@ class App extends React.Component {
               <Admin.ImportAuth />
             </Route>
             <Route path="/auth">
-              <Auth />
+              <Auth headerCallback={(() => this.setState({})).bind(this)} />
             </Route>
             <Route path="/watch">
               <Watch />

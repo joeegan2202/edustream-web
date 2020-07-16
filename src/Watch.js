@@ -7,6 +7,7 @@ import ListGroupItem from 'react-bootstrap/ListGroupItem'
 import InputGroup from 'react-bootstrap/InputGroup'
 import FormControl from 'react-bootstrap/FormControl'
 import Button from 'react-bootstrap/Button'
+import Alert from 'react-bootstrap/Alert'
 
 class Watch extends React.Component {
   constructor(props) {
@@ -16,35 +17,117 @@ class Watch extends React.Component {
     let sid = window.localStorage.getItem('sid')
 
     if (!session) {
-      history.push('/auth')
+      this.props.history.push('/auth')
     }
+
+    let interval = null
 
     let params = new URLSearchParams(this.props.location.search)
 
-    if (params.get('role') == 'admin') {
+    switch(params.get('role')) {
+    case 'admin':
       fetch(`https://api.edustream.live/info/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&room=${params.get('room')}`).then(data => data.json()).then(output => {
-        this.setState({ name: `Administrator` })
+        if(!output.status) {
+          this.props.history.push('/auth')
+          return
+        }
+        this.setState({ name: `Administrator`, cname: output.info.cname, period: output.info.period, attendance: output.info.attendance })
       })
-    } else {
+      interval = setInterval(() => fetch(`https://api.edustream.live/info/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&room=${params.get('room')}`).then(data => data.json()).then(output => {
+        if(!output.status) {
+          this.props.history.push('/auth')
+          return
+        }
+        this.setState({ name: `Administrator`, cname: output.info.cname, period: output.info.period, attendance: output.info.attendance })
+      }), 15000)
+      break
+    case 'teacher':
       fetch(`https://api.edustream.live/info/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`).then(data => data.json()).then(output => {
-        this.setState({ name: `${output.info.fname} ${output.info.lname}` })
+        if(!output.status) {
+          this.props.history.push('/auth')
+          return
+        }
+        this.setState({ name: `${output.info.fname} ${output.info.lname}`, cname: output.info.cname, period: output.info.period, attendance: output.info.attendance })
       })
+      interval = setInterval(() => fetch(`https://api.edustream.live/info/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`).then(data => data.json()).then(output => {
+        if(!output.status) {
+          this.props.history.push('/auth')
+          return
+        }
+        this.setState({ name: `${output.info.fname} ${output.info.lname}`, cname: output.info.cname, period: output.info.period, attendance: output.info.attendance })
+      }), 15000)
+      break
+    case 'student':
+      fetch(`https://api.edustream.live/info/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`).then(data => data.json()).then(output => {
+        if(!output.status) {
+          this.props.history.push('/auth')
+          return
+        }
+        this.setState({ name: `${output.info.fname} ${output.info.lname}`, cname: output.info.cname, period: output.info.period })
+      })
+      interval = setInterval(() => fetch(`https://api.edustream.live/info/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`).then(data => data.json()).then(output => {
+        if(!output.status) {
+          this.props.history.push('/auth')
+          return
+        }
+        this.setState({ name: `${output.info.fname} ${output.info.lname}`, cname: output.info.cname, period: output.info.period })
+      }), 15000)
+      break
     }
 
     this.state = {
+      interval,
+      attendance: [],
       name: '',
+      cname: '',
+      period: '',
+      activeShouts: [],
+      role: params.get('role'),
       streamPath: params.get("role") == 'admin' ? `${sid}/${session}/${params.get("room")}` : `${sid}/${session}`
     }
   }
 
+  shoutCallback(shouts) {
+    this.setState({ activeShouts: this.state.activeShouts.concat(shouts) })
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.state.interval)
+    document.title = 'EduStream'
+  }
+
   render() {
+    document.title = this.state.cname
+
     return (
       <div className="Watch">
+          {this.state.activeShouts.length ? (() => {
+            //setTimeout(() => {this.setState({ activeShouts: this.state.activeShouts.slice(1) })}, 5000)
+            return (
+            <div id="shout-shadow">
+              <Alert variant="primary" onClose={() => {this.setState({ activeShouts: this.state.activeShouts.slice(1) })}} dismissible>
+                <Alert.Heading>{this.state.activeShouts[0].body.name} <i>{this.state.activeShouts[0].body.time}</i></Alert.Heading>
+                <p>{this.state.activeShouts[0].body.text}</p>
+                <hr/>
+                <Button variant="danger" onClick={() => this.setState({ activeShouts: [] })}>Close All</Button>
+              </Alert>
+            </div>
+            )})() : null}
         <div id="col1">
           <StreamPlayer streamPath={this.state.streamPath}></StreamPlayer>
+          <div id="stream-info">
+            <h1>Welcome, {this.state.name}!</h1>
+            <p>Class: {this.state.cname}<br/>Period: {this.state.period}</p>
+            {this.state.role != "student" ? <ListGroup><b>Attendance ({this.state.attendance.length == 1 ? '1 person in room' : `${this.state.attendance.length} people in room`}):</b>
+              {this.state.attendance.map((name, index) => {
+              return (
+                <ListGroupItem key={index}>{name}</ListGroupItem>
+              )})}
+            </ListGroup> : null}
+          </div>
         </div>
         <div id="col2">
-          <ShoutOuts name={this.state.name}></ShoutOuts>
+          <this.ShoutOuts shoutCallback={this.shoutCallback.bind(this)} name={this.state.name}></this.ShoutOuts>
         </div>
       </div>
     )
@@ -64,6 +147,11 @@ class ShoutOuts extends React.Component {
   updateMessages() {
     let id = this.state.messages[this.state.messages.length - 1] ? this.state.messages[this.state.messages.length - 1].id : 0
     fetch(`https://api.edustream.live/shout/poll/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&lastId=${id}`).then(data => data.json()).then(output => {
+      if(!output.status) {
+        this.props.history.push('/auth')
+        return
+      }
+      this.props.shoutCallback(output.shouts)
       this.setState({ messages: this.state.messages.concat(output.shouts) })
     }).finally(() => {
       if(this.sentry){
@@ -82,8 +170,10 @@ class ShoutOuts extends React.Component {
   render() {
     return (
       <div className="ShoutOuts">
-        <h1>Shout It Out!</h1>
-        <h4>Ask a question here</h4>
+        <div id="shout-header">
+          <h1>Shout It Out!</h1>
+          <h4>Ask a question here:</h4>
+        </div>
         <ListGroup>
           {this.state.messages.map((message, index) => {
             return (<ListGroupItem key={index}>
@@ -112,6 +202,8 @@ class ShoutOuts extends React.Component {
     )
   }
 }
+
+Watch.prototype.ShoutOuts = withRouter(ShoutOuts)
 
 class Message extends React.Component {
   constructor(props) {
