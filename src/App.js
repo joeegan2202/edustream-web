@@ -30,7 +30,7 @@ class App extends React.Component {
                 <Dropdown.Item href="/auth">
                   Watch
                 </Dropdown.Item>
-                <Dropdown.Item onClick={() => {
+                <Dropdown.Item href="/" onClick={() => {
                   window.sessionStorage.setItem('session', '')
                   this.setState({})
                 }}>Logout</Dropdown.Item>

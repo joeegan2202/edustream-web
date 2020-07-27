@@ -63,6 +63,12 @@
   background-color: white;
 }
 
+#buttons {
+  padding: 1em;
+  display: flex;
+  justify-content: space-between;
+}
+
 .Import {
   padding: 5em;
   padding-top: calc(10vh + 5em);

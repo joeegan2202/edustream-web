@@ -106,6 +106,9 @@ class Camera extends React.Component {
 
   updateCameras() {
     fetch(`https://api.edustream.live/admin/read/camera/?sid=fda734d93365f6ac6ced0f3d0c85aad460e1a8fc317c998c15546f6ab3d56f73&session=${this.state.session}`).then(data => data.json()).then(output => {
+      if(!output.status) {
+        this.props.history.push('/auth')
+      }
       this.setState({ cameras: output.cameras || [] })
     })
   }
@@ -128,26 +131,26 @@ class Camera extends React.Component {
     return (
       <Container className="Admin-Camera">
         <Button onClick={() => this.setState({ editPopup: <CameraEdit camera={{}} closeEdit={closeEdit.bind(this)} /> })}>Add Camera</Button>
-        <Button variant="success" onClick={() => fetch(`https://api.edustream.live/admin/start/all/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`)}>Start All Cameras</Button>
-        <Button variant="danger" onClick={() => fetch(`https://api.edustream.live/admin/stop/all/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`)}>Stop All Cameras</Button>
+        <Button variant="success" onClick={() => fetch(`https://api.edustream.live/admin/start/all/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`)}>Start Unlocked Cameras</Button>
+        <Button variant="danger" onClick={() => fetch(`https://api.edustream.live/admin/stop/all/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`)}>Stop Unlocked Cameras</Button>
         <ListGroup>
           {this.state.cameras.map((camera, id) => {
             return <div className="list" key={id}><ListGroup.Item action variant="primary" onClick={() => this.setState({ editPopup: <CameraEdit camera={camera} closeEdit={closeEdit.bind(this)} /> })}>Room #: {camera.room} Address: {camera.address} Streaming: {camera.lastStreamed < (Date.now()/1000)-60}</ListGroup.Item>
             <Button variant={camera.locked ? 'warning' : 'light'} onClick={camera.locked ? () => {
 
-              fetch(`https://api.edustream.live/admin/unlock/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&cameraId=${camera.id}`).then(this.updateCameras.bind(this))
+              fetch(`https://api.edustream.live/admin/unlock/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&cameraID=${camera.id}`).then(this.updateCameras.bind(this))
             } : () => {
 
-              fetch(`https://api.edustream.live/admin/lock/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&cameraId=${camera.id}`).then(this.updateCameras.bind(this))
+              fetch(`https://api.edustream.live/admin/lock/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&cameraID=${camera.id}`).then(this.updateCameras.bind(this))
             }}><img src={camera.locked ? '/lockicon.svg' : '/unlockicon.svg'} style={{ width: '100%', height: '100%' }}></img></Button>{
               camera.lastStreamed < (Date.now()/1000)-60 ? <Button variant={camera.locked ? 'outline-success' : 'success'} onClick={camera.locked ? null : () => {
 
-                fetch(`https://api.edustream.live/admin/start/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&cameraId=${camera.id}`)
+                fetch(`https://api.edustream.live/admin/start/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&cameraID=${camera.id}`)
               }
               }>Start Camera</Button> :
                 <Button variant={camera.locked ? 'outline-danger' : 'danger'} onClick={camera.locked ? null : () => {
 
-                  fetch(`https://api.edustream.live/admin/stop/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&cameraId=${camera.id}`)
+                  fetch(`https://api.edustream.live/admin/stop/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&cameraID=${camera.id}`)
                 }
                 }>Stop Camera</Button>}
               <a href={`/admin/watch?role=admin&room=${camera.room}`}><Button variant="primary">Watch</Button></a></div>
@@ -195,8 +198,18 @@ class CameraEdit extends React.Component {
             <FormControl placeholder="IP camera's address" defaultValue={this.props.camera.address} />
           </InputGroup>
 
-          <Button onClick={this.props.closeEdit}>Close</Button>
-          <Button type="submit">Save Camera</Button>
+          <div id="buttons">
+            <Button onClick={this.props.closeEdit}>Close</Button>
+            <Button variant='danger' onClick={() => {
+              fetch(`https://api.edustream.live/admin/delete/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&id=${this.state.camera.id}`).then(data => data.json()).then(output => {
+                if(!output.status) {
+                  this.props.history.push('/auth')
+                }
+                this.props.closeEdit()
+              })
+            }}>Delete Camera</Button>
+            <Button type="submit">Save Camera</Button>
+          </div>
         </form>
       </div>
     )
@@ -305,6 +318,9 @@ class ImportPeople extends React.Component {
 
   updatePeople() {
     fetch(`https://api.edustream.live/admin/read/people/?sid=${window.localStorage.getItem('sid')}&session=${this.state.session}`).then(data => data.json()).then(output => {
+      if(!output.status) {
+        this.props.history.push('/auth')
+      }
       this.setState({ people: output.people || [] })
     })
   }
@@ -429,6 +445,9 @@ class ImportClasses extends React.Component {
 
   updateClasses() {
     fetch(`https://api.edustream.live/admin/read/classes/?sid=${window.localStorage.getItem('sid')}&session=${this.state.session}`).then(data => data.json()).then(output => {
+      if(!output.status) {
+        this.props.history.push('/auth')
+      }
       this.setState({ classes: output.classes || [] })
     })
   }
@@ -546,6 +565,9 @@ class ImportRoster extends React.Component {
 
   updateRoster() {
     fetch(`https://api.edustream.live/admin/read/roster/?sid=${window.localStorage.getItem('sid')}&session=${this.state.session}`).then(data => data.json()).then(output => {
+      if(!output.status) {
+        this.props.history.push('/auth')
+      }
       this.setState({ roster: output.roster || [] })
     })
   }
@@ -678,6 +700,9 @@ class ImportPeriods extends React.Component {
 
   updatePeriods() {
     fetch(`https://api.edustream.live/admin/read/periods/?sid=${window.localStorage.getItem('sid')}&session=${this.state.session}`).then(data => data.json()).then(output => {
+      if(!output.status) {
+        this.props.history.push('/auth')
+      }
       this.setState({ periods: output.periods || [] })
     })
   }
@@ -791,6 +816,9 @@ class ImportAuth extends React.Component {
 
   updateAuth() {
     fetch(`https://api.edustream.live/admin/read/auth/?sid=${window.localStorage.getItem('sid')}&session=${this.state.session}`).then(data => data.json()).then(output => {
+      if(!output.status) {
+        this.props.history.push('/auth')
+      }
       this.setState({ auth: output.auth || [] })
     })
   }

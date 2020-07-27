@@ -146,7 +146,7 @@ class ShoutOuts extends React.Component {
 
   updateMessages() {
     let id = this.state.messages[this.state.messages.length - 1] ? this.state.messages[this.state.messages.length - 1].id : 0
-    fetch(`https://api.edustream.live/shout/poll/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&lastId=${id}`).then(data => data.json()).then(output => {
+    fetch(`https://api.edustream.live/shout/poll/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&lastID=${id}`).then(data => data.json()).then(output => {
       if(!output.status) {
         this.props.history.push('/auth')
         return

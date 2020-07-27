@@ -69,6 +69,8 @@ class Auth extends React.Component {
                   }
                 } else {
                   console.log(output)
+                  window.sessionStorage.setItem('session', '')
+                  this.props.headerCallback()
                   window.alert("Error! " + output.err)
                 }
               })
