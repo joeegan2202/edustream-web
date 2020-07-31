@@ -3,6 +3,7 @@ import Hls from 'hls.js'
 import Alert from 'react-bootstrap/Alert'
 import { withRouter } from 'react-router-dom'
 import 'bootstrap/dist/css/bootstrap.min.css'
+import { API_URL } from './Variables'
 
 class StreamPlayer extends React.Component {
   constructor(props) {
@@ -14,7 +15,7 @@ class StreamPlayer extends React.Component {
 
     this.state = {
       session,
-      source: `https://api.edustream.live/stream/${this.props.streamPath}/stream.m3u8`,
+      source: `https://${API_URL}/stream/${this.props.streamPath}/stream.m3u8`,
       errors: []
     }
   }

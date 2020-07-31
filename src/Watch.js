@@ -8,6 +8,7 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import FormControl from 'react-bootstrap/FormControl'
 import Button from 'react-bootstrap/Button'
 import Alert from 'react-bootstrap/Alert'
+import { API_URL } from './Variables'
 
 class Watch extends React.Component {
   constructor(props) {
@@ -26,14 +27,14 @@ class Watch extends React.Component {
 
     switch(params.get('role')) {
     case 'admin':
-      fetch(`https://api.edustream.live/info/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&room=${params.get('room')}`).then(data => data.json()).then(output => {
+      fetch(`https://${API_URL}/info/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&room=${params.get('room')}`).then(data => data.json()).then(output => {
         if(!output.status) {
           this.props.history.push('/auth')
           return
         }
         this.setState({ name: `Administrator`, cname: output.info.cname, period: output.info.period, attendance: output.info.attendance })
       })
-      interval = setInterval(() => fetch(`https://api.edustream.live/info/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&room=${params.get('room')}`).then(data => data.json()).then(output => {
+      interval = setInterval(() => fetch(`https://${API_URL}/info/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&room=${params.get('room')}`).then(data => data.json()).then(output => {
         if(!output.status) {
           this.props.history.push('/auth')
           return
@@ -42,14 +43,14 @@ class Watch extends React.Component {
       }), 15000)
       break
     case 'teacher':
-      fetch(`https://api.edustream.live/info/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`).then(data => data.json()).then(output => {
+      fetch(`https://${API_URL}/info/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`).then(data => data.json()).then(output => {
         if(!output.status) {
           this.props.history.push('/auth')
           return
         }
         this.setState({ name: `${output.info.fname} ${output.info.lname}`, cname: output.info.cname, period: output.info.period, attendance: output.info.attendance })
       })
-      interval = setInterval(() => fetch(`https://api.edustream.live/info/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`).then(data => data.json()).then(output => {
+      interval = setInterval(() => fetch(`https://${API_URL}/info/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`).then(data => data.json()).then(output => {
         if(!output.status) {
           this.props.history.push('/auth')
           return
@@ -58,14 +59,14 @@ class Watch extends React.Component {
       }), 15000)
       break
     case 'student':
-      fetch(`https://api.edustream.live/info/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`).then(data => data.json()).then(output => {
+      fetch(`https://${API_URL}/info/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`).then(data => data.json()).then(output => {
         if(!output.status) {
           this.props.history.push('/auth')
           return
         }
         this.setState({ name: `${output.info.fname} ${output.info.lname}`, cname: output.info.cname, period: output.info.period })
       })
-      interval = setInterval(() => fetch(`https://api.edustream.live/info/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`).then(data => data.json()).then(output => {
+      interval = setInterval(() => fetch(`https://${API_URL}/info/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`).then(data => data.json()).then(output => {
         if(!output.status) {
           this.props.history.push('/auth')
           return
@@ -146,7 +147,7 @@ class ShoutOuts extends React.Component {
 
   updateMessages() {
     let id = this.state.messages[this.state.messages.length - 1] ? this.state.messages[this.state.messages.length - 1].id : 0
-    fetch(`https://api.edustream.live/shout/poll/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&lastID=${id}`).then(data => data.json()).then(output => {
+    fetch(`https://${API_URL}/shout/poll/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&lastID=${id}`).then(data => data.json()).then(output => {
       if(!output.status) {
         this.props.history.push('/auth')
         return
@@ -188,7 +189,7 @@ class ShoutOuts extends React.Component {
 
           document.querySelector("#text input").value = ""
 
-          fetch(`https://api.edustream.live/shout/post/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`, {
+          fetch(`https://${API_URL}/shout/post/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`, {
             method: "POST",
             body: message
           }).then(data => data.json()).then(output => console.log(output))

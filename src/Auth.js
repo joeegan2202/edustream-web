@@ -7,6 +7,7 @@ import FormControl from 'react-bootstrap/FormControl'
 import Button from 'react-bootstrap/Button'
 import "@reach/combobox/styles.css"
 import './Auth.css'
+import { API_URL } from './Variables'
 
 class Auth extends React.Component {
   constructor(props) {
@@ -14,19 +15,20 @@ class Auth extends React.Component {
 
     window.localStorage.setItem("sid", "fda734d93365f6ac6ced0f3d0c85aad460e1a8fc317c998c15546f6ab3d56f73")
 
-    fetch(`https://api.edustream.live/check/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`).then(data => data.json()).then(output => {
+    fetch(`https://${API_URL}/check/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`).then(data => data.json()).then(output => {
       if(output.status) {
-        this.props.headerCallback()
         switch (output.role) {
           case "A":
-            this.props.history.push('/admin')
+            this.props.history.replace('/admin')
             break
           case "S":
-            this.props.history.push('/watch?role=student')
+            this.props.history.replace('/watch?role=student')
             break
           case "T":
-            this.props.history.push('/watch?role=teacher')
+            this.props.history.replace('/watch?role=teacher')
         }
+      } else {
+        window.sessionStorage.removeItem('session')
       }
     })
 
@@ -50,22 +52,24 @@ class Auth extends React.Component {
               let hash = crypto.createHash('sha256')
               hash.update(pword)
 
-              fetch(`https://api.edustream.live/auth/pass/?sid=${window.localStorage.getItem('sid')}&uname=${uname}`, {
+              fetch(`https://${API_URL}/auth/pass/?uname=${uname}`, {
                 method: 'POST',
                 body: hash.digest('hex')
               }).then(data => data.json()).then(output => {
                 if (output.status) {
+                  window.localStorage.setItem('sid', output.sid)
                   window.sessionStorage.setItem('session', output.session)
+                  window.sessionStorage.setItem('bannerURL', output.bannerURL)
                   this.props.headerCallback()
                   switch(output.role) {
                   case "A":
-                    history.push('/admin')
+                    history.replace('/admin')
                     break
                   case "S":
-                    history.push('/watch?role=student')
+                    history.replace('/watch?role=student')
                     break
                   case "T":
-                    history.push('/watch?role=teacher')
+                    history.replace('/watch?role=teacher')
                   }
                 } else {
                   console.log(output)

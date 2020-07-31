@@ -8,6 +8,14 @@
   padding-top: calc(10vh + 5em);
 }
 
+.container {
+  margin: 1em;
+}
+
+button.list-group-item {
+  word-break: break-all;
+}
+
 .Admin .row {
   margin: 1em;
 }

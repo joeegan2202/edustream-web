@@ -9,8 +9,60 @@ import Card from 'react-bootstrap/Card'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
+import { API_URL } from './Variables'
 import './lockicon.svg'
 import './Admin.css'
+
+var levDist = function(s, t) {
+  var d = []; //2d matrix
+
+  // Step 1
+  var n = s.length;
+  var m = t.length;
+
+  if (n == 0) return m;
+  if (m == 0) return n;
+
+  //Create an array of arrays in javascript (a descending loop is quicker)
+  for (var i = n; i >= 0; i--) d[i] = [];
+
+  // Step 2
+  for (var i = n; i >= 0; i--) d[i][0] = i;
+  for (var j = m; j >= 0; j--) d[0][j] = j;
+
+  // Step 3
+  for (var i = 1; i <= n; i++) {
+      var s_i = s.charAt(i - 1);
+
+      // Step 4
+      for (var j = 1; j <= m; j++) {
+
+          //Check the jagged ld total so far
+          if (i == j && d[i][j] > 4) return n;
+
+          var t_j = t.charAt(j - 1);
+          var cost = (s_i == t_j) ? 0 : 1; // Step 5
+
+          //Calculate the minimum
+          var mi = d[i - 1][j] + 1;
+          var b = d[i][j - 1] + 1;
+          var c = d[i - 1][j - 1] + cost;
+
+          if (b < mi) mi = b;
+          if (c < mi) mi = c;
+
+          d[i][j] = mi; // Step 6
+
+          //Damerau transposition
+          if (i > 1 && j > 1 && s_i == t.charAt(j - 2) && s.charAt(i - 2) == t_j) {
+              d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + cost);
+          }
+      }
+  }
+
+  // Step 7
+  return d[n][m];
+}
 
 class Admin extends React.Component {
   constructor(props) {
@@ -64,10 +116,10 @@ class Admin extends React.Component {
           <Col>
             <Card className="btn" bg="primary" text="white" onClick={() => history.push("/admin/import")}>
               <Card.Body>
-                <Card.Title>Import Data</Card.Title>
+                <Card.Title>School Data</Card.Title>
 
                 <Card.Text>
-                Click here to import roster and class data with CSV files!
+                Click here to import roster and class data with CSV files, or to manually edit school data!
                         </Card.Text>
               </Card.Body>
             </Card>
@@ -105,7 +157,7 @@ class Camera extends React.Component {
   }
 
   updateCameras() {
-    fetch(`https://api.edustream.live/admin/read/camera/?sid=fda734d93365f6ac6ced0f3d0c85aad460e1a8fc317c998c15546f6ab3d56f73&session=${this.state.session}`).then(data => data.json()).then(output => {
+    fetch(`https://${API_URL}/admin/read/camera/?sid=fda734d93365f6ac6ced0f3d0c85aad460e1a8fc317c998c15546f6ab3d56f73&session=${this.state.session}`).then(data => data.json()).then(output => {
       if(!output.status) {
         this.props.history.push('/auth')
       }
@@ -130,27 +182,27 @@ class Camera extends React.Component {
     }
     return (
       <Container className="Admin-Camera">
-        <Button onClick={() => this.setState({ editPopup: <CameraEdit camera={{}} closeEdit={closeEdit.bind(this)} /> })}>Add Camera</Button>
-        <Button variant="success" onClick={() => fetch(`https://api.edustream.live/admin/start/all/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`)}>Start Unlocked Cameras</Button>
-        <Button variant="danger" onClick={() => fetch(`https://api.edustream.live/admin/stop/all/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`)}>Stop Unlocked Cameras</Button>
+        <Button onClick={() => this.setState({ editPopup: <CameraEdit camera={false} closeEdit={closeEdit.bind(this)} /> })}>Add Camera</Button>
+        <Button variant="success" onClick={() => fetch(`https://${API_URL}/admin/start/all/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`)}>Start Unlocked Cameras</Button>
+        <Button variant="danger" onClick={() => fetch(`https://${API_URL}/admin/stop/all/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`)}>Stop Unlocked Cameras</Button>
         <ListGroup>
           {this.state.cameras.map((camera, id) => {
-            return <div className="list" key={id}><ListGroup.Item action variant="primary" onClick={() => this.setState({ editPopup: <CameraEdit camera={camera} closeEdit={closeEdit.bind(this)} /> })}>Room #: {camera.room} Address: {camera.address} Streaming: {camera.lastStreamed < (Date.now()/1000)-60}</ListGroup.Item>
+            return <div className="list" key={id}><ListGroup.Item action variant="primary" onClick={() => this.setState({ editPopup: <CameraEdit camera={camera} closeEdit={closeEdit.bind(this)} /> })}>Room #: <b>{camera.room}</b> Address: <b>{camera.address}</b></ListGroup.Item>
             <Button variant={camera.locked ? 'warning' : 'light'} onClick={camera.locked ? () => {
 
-              fetch(`https://api.edustream.live/admin/unlock/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&cameraID=${camera.id}`).then(this.updateCameras.bind(this))
+              fetch(`https://${API_URL}/admin/unlock/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&cameraID=${camera.id}`).then(this.updateCameras.bind(this))
             } : () => {
 
-              fetch(`https://api.edustream.live/admin/lock/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&cameraID=${camera.id}`).then(this.updateCameras.bind(this))
+              fetch(`https://${API_URL}/admin/lock/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&cameraID=${camera.id}`).then(this.updateCameras.bind(this))
             }}><img src={camera.locked ? '/lockicon.svg' : '/unlockicon.svg'} style={{ width: '100%', height: '100%' }}></img></Button>{
-              camera.lastStreamed < (Date.now()/1000)-60 ? <Button variant={camera.locked ? 'outline-success' : 'success'} onClick={camera.locked ? null : () => {
+              camera.lastStreamed < (Date.now()/1000)-30 ? <Button variant={camera.locked ? 'outline-success' : 'success'} disabled={camera.locked} onClick={camera.locked ? null : () => {
 
-                fetch(`https://api.edustream.live/admin/start/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&cameraID=${camera.id}`)
+                fetch(`https://${API_URL}/admin/start/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&cameraID=${camera.id}`)
               }
               }>Start Camera</Button> :
-                <Button variant={camera.locked ? 'outline-danger' : 'danger'} onClick={camera.locked ? null : () => {
+                <Button variant={camera.locked ? 'outline-danger' : 'danger'} disabled={camera.locked} onClick={camera.locked ? null : () => {
 
-                  fetch(`https://api.edustream.live/admin/stop/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&cameraID=${camera.id}`)
+                  fetch(`https://${API_URL}/admin/stop/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&cameraID=${camera.id}`)
                 }
                 }>Stop Camera</Button>}
               <a href={`/admin/watch?role=admin&room=${camera.room}`}><Button variant="primary">Watch</Button></a></div>
@@ -180,7 +232,7 @@ class CameraEdit extends React.Component {
           let room = document.querySelector('#room input').value
           let address = document.querySelector('#address input').value
 
-          fetch(`https://api.edustream.live/admin/${this.props.camera === {} ? 'create' : 'update'}/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&room=${room}&address=${address}&id=${this.state.camera.id}`).then(response => response.json()).then(data => {
+          fetch(`https://${API_URL}/admin/${this.props.camera ? 'update' : 'create'}/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&room=${room}&address=${address}&id=${this.state.camera.id}`).then(response => response.json()).then(data => {
             console.log(data)
             if (data.status) {
               this.props.closeEdit()
@@ -201,7 +253,7 @@ class CameraEdit extends React.Component {
           <div id="buttons">
             <Button onClick={this.props.closeEdit}>Close</Button>
             <Button variant='danger' onClick={() => {
-              fetch(`https://api.edustream.live/admin/delete/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&id=${this.state.camera.id}`).then(data => data.json()).then(output => {
+              fetch(`https://${API_URL}/admin/delete/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&id=${this.state.camera.id}`).then(data => data.json()).then(output => {
                 if(!output.status) {
                   this.props.history.push('/auth')
                 }
@@ -229,7 +281,7 @@ class Import extends React.Component {
         <form onSubmit={(e) => {
           e.preventDefault()
           console.log(document.querySelector('#peoplefile').files[0])
-          fetch(`https://api.edustream.live/admin/import/people/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`, {
+          fetch(`https://${API_URL}/admin/import/people/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`, {
             method: 'PUT',
             body: document.querySelector('#peoplefile').files[0]
           })
@@ -244,7 +296,7 @@ class Import extends React.Component {
         <form onSubmit={(e) => {
           e.preventDefault()
           console.log(document.querySelector('#classfile').files[0])
-          fetch(`https://api.edustream.live/admin/import/classes/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`, {
+          fetch(`https://${API_URL}/admin/import/classes/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`, {
             method: 'PUT',
             body: document.querySelector('#classfile').files[0]
           })
@@ -259,7 +311,7 @@ class Import extends React.Component {
         <form onSubmit={(e) => {
           e.preventDefault()
           console.log(document.querySelector('#rosterfile').files[0])
-          fetch(`https://api.edustream.live/admin/import/roster/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`, {
+          fetch(`https://${API_URL}/admin/import/roster/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`, {
             method: 'PUT',
             body: document.querySelector('#rosterfile').files[0]
           })
@@ -274,7 +326,7 @@ class Import extends React.Component {
         <form onSubmit={(e) => {
           e.preventDefault()
           console.log(document.querySelector('#periodfile').files[0])
-          fetch(`https://api.edustream.live/admin/import/periods/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`, {
+          fetch(`https://${API_URL}/admin/import/periods/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`, {
             method: 'PUT',
             body: document.querySelector('#periodfile').files[0]
           })
@@ -317,7 +369,7 @@ class ImportPeople extends React.Component {
   }
 
   updatePeople() {
-    fetch(`https://api.edustream.live/admin/read/people/?sid=${window.localStorage.getItem('sid')}&session=${this.state.session}`).then(data => data.json()).then(output => {
+    fetch(`https://${API_URL}/admin/read/people/?sid=${window.localStorage.getItem('sid')}&session=${this.state.session}`).then(data => data.json()).then(output => {
       if(!output.status) {
         this.props.history.push('/auth')
       }
@@ -338,12 +390,12 @@ class ImportPeople extends React.Component {
 
     return (
       <Container className="ImportPeople">
-        <Button onClick={() => this.setState({ editPopup: <PersonEdit person={{}} closeEdit={closeEdit.bind(this)} /> })}>Add Person</Button>
+        <Button onClick={() => this.setState({ editPopup: <PersonEdit person={false} closeEdit={closeEdit.bind(this)} /> })}>Add Person</Button>
         <ListGroup>
           {this.state.people.map((person, id) => {
             return <div className="person-list" key={id}><ListGroup.Item action variant="primary" onClick={() => this.setState({
               editPopup: <PersonEdit person={person} closeEdit={closeEdit.bind(this)} /> 
-            })}>ID: {person.id} Username: {person.uname} First name: {person.fname} Last name: {person.lname} Role: {person.role}</ListGroup.Item></div>
+            })}>ID: <b>{person.id}</b> Username: <b>{person.uname}</b> First name: <b>{person.fname}</b> Last name: <b>{person.lname}</b> Role: <b>{person.role}</b></ListGroup.Item></div>
           })}
         </ListGroup>
         {this.state.editPopup}
@@ -377,7 +429,7 @@ class PersonEdit extends React.Component {
 
           let csv = `id,uname,fname,lname,role\n${this.state.person.id || hash.digest('hex')},${uname},${fname},${lname},${role}`
 
-          fetch(`https://api.edustream.live/admin/import/people/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`, {
+          fetch(`https://${API_URL}/admin/import/people/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`, {
             method: "PUT",
             body: csv
           }).then(response => response.json()).then(data => {
@@ -419,6 +471,14 @@ class PersonEdit extends React.Component {
           </InputGroup>
 
           <Button onClick={this.props.closeEdit}>Close</Button>
+            {this.state.person ? <Button variant='danger' onClick={() => {
+              fetch(`https://${API_URL}/admin/delete/people/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&id=${this.state.person.id}`).then(data => data.json()).then(output => {
+                if(!output.status) {
+                  this.props.history.push('/auth')
+                }
+                this.props.closeEdit()
+              })
+            }}>Delete Person</Button> : null}
           <Button type="submit">Save Person</Button>
         </form>
       </div>
@@ -444,7 +504,7 @@ class ImportClasses extends React.Component {
   }
 
   updateClasses() {
-    fetch(`https://api.edustream.live/admin/read/classes/?sid=${window.localStorage.getItem('sid')}&session=${this.state.session}`).then(data => data.json()).then(output => {
+    fetch(`https://${API_URL}/admin/read/classes/?sid=${window.localStorage.getItem('sid')}&session=${this.state.session}`).then(data => data.json()).then(output => {
       if(!output.status) {
         this.props.history.push('/auth')
       }
@@ -465,12 +525,12 @@ class ImportClasses extends React.Component {
 
     return (
       <Container className="Import ImportClasses">
-        <Button onClick={() => this.setState({ editPopup: <ClassEdit course={{}} closeEdit={closeEdit.bind(this)} /> })}>Add Class</Button>
+        <Button onClick={() => this.setState({ editPopup: <ClassEdit course={false} closeEdit={closeEdit.bind(this)} /> })}>Add Class</Button>
         <ListGroup>
           {this.state.classes.map((course, id) => {
             return <div className="List ClassList" key={id}><ListGroup.Item action variant="primary" onClick={() => this.setState({
               editPopup: <ClassEdit course={course} closeEdit={closeEdit.bind(this)} /> 
-            })}>ID: {course.id} Name: {course.name} Room: {course.room} Period: {course.period}</ListGroup.Item></div>
+            })}>ID: <b>{course.id}</b> Name: <b>{course.name}</b> Room: <b>{course.room}</b> Period: <b>{course.period}</b></ListGroup.Item></div>
           })}
         </ListGroup>
         {this.state.editPopup}
@@ -503,7 +563,7 @@ class ClassEdit extends React.Component {
 
           let csv = `id,name,room,period\n${this.state.course.id || hash.digest('hex')},${name},${room},${period}`
 
-          fetch(`https://api.edustream.live/admin/import/classes/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`, {
+          fetch(`https://${API_URL}/admin/import/classes/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`, {
             method: "PUT",
             body: csv
           }).then(response => response.json()).then(data => {
@@ -539,6 +599,14 @@ class ClassEdit extends React.Component {
           </InputGroup>
 
           <Button onClick={this.props.closeEdit}>Close</Button>
+            {this.state.course ? <Button variant='danger' onClick={() => {
+              fetch(`https://${API_URL}/admin/delete/classes/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&id=${this.state.course.id}`).then(data => data.json()).then(output => {
+                if(!output.status) {
+                  this.props.history.push('/auth')
+                }
+                this.props.closeEdit()
+              })
+            }}>Delete Class</Button> : null}
           <Button type="submit">Save Class</Button>
         </form>
       </div>
@@ -564,7 +632,7 @@ class ImportRoster extends React.Component {
   }
 
   updateRoster() {
-    fetch(`https://api.edustream.live/admin/read/roster/?sid=${window.localStorage.getItem('sid')}&session=${this.state.session}`).then(data => data.json()).then(output => {
+    fetch(`https://${API_URL}/admin/read/roster/?sid=${window.localStorage.getItem('sid')}&session=${this.state.session}`).then(data => data.json()).then(output => {
       if(!output.status) {
         this.props.history.push('/auth')
       }
@@ -585,12 +653,12 @@ class ImportRoster extends React.Component {
 
     return (
       <Container className="Import ImportRoster">
-        <Button onClick={() => this.setState({ editPopup: <RosterEdit roster={{}} closeEdit={closeEdit.bind(this)} /> })}>Add Roster</Button>
+        <Button onClick={() => this.setState({ editPopup: <RosterEdit entry={false} closeEdit={closeEdit.bind(this)} /> })}>Add Roster</Button>
         <ListGroup>
           {this.state.roster.map((entry, id) => {
             return <div className="List RosterList" key={id}><ListGroup.Item action variant="primary" onClick={() => this.setState({
               editPopup: <RosterEdit entry={entry} closeEdit={closeEdit.bind(this)} /> 
-            })}>PersonID: {entry.pid} ClassID: {entry.cid}</ListGroup.Item></div>
+            })}>PersonID: <b>{entry.pid}</b> ClassID: <b>{entry.cid}</b></ListGroup.Item></div>
           })}
         </ListGroup>
         {this.state.editPopup}
@@ -619,7 +687,7 @@ class RosterEdit extends React.Component {
 
           let csv = `pid,cid\n${pid},${cid}`
 
-          fetch(`https://api.edustream.live/admin/import/roster/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`, {
+          fetch(`https://${API_URL}/admin/import/roster/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`, {
             method: "PUT",
             body: csv
           }).then(response => response.json()).then(data => {
@@ -652,7 +720,6 @@ class RosterEdit extends React.Component {
 
 function getFullTimeString(time) {
   let date = new Date(time*1000)
-  date.setTime(date.getTime()+(date.getTimezoneOffset()*60000))
   switch(date.getUTCMonth()) {
   case 0:
     return `Jan. ${date.getUTCDate()} ${date.toLocaleTimeString('en-US')}`
@@ -699,7 +766,7 @@ class ImportPeriods extends React.Component {
   }
 
   updatePeriods() {
-    fetch(`https://api.edustream.live/admin/read/periods/?sid=${window.localStorage.getItem('sid')}&session=${this.state.session}`).then(data => data.json()).then(output => {
+    fetch(`https://${API_URL}/admin/read/periods/?sid=${window.localStorage.getItem('sid')}&session=${this.state.session}`).then(data => data.json()).then(output => {
       if(!output.status) {
         this.props.history.push('/auth')
       }
@@ -720,8 +787,7 @@ class ImportPeriods extends React.Component {
 
     return (
       <Container className="Import ImportPeriods">
-        <Button onClick={() => this.setState({ editPopup: <PeriodEdit period={{}} closeEdit={closeEdit.bind(this)} /> })}>Add Period</Button>
-        {/*<Button variant="danger" onClick={() => fetch(`https://api.edustream.live/admin/stop/all/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`)}>Stop All Cameras</Button>*/}
+        <Button onClick={() => this.setState({ editPopup: <PeriodEdit period={false} closeEdit={closeEdit.bind(this)} /> })}>Add Period</Button>
         <ListGroup>
           {this.state.periods.map((period, id) => {
             return <div className="List PeriodList" key={id}><ListGroup.Item action variant="primary" onClick={() => this.setState({
@@ -753,14 +819,11 @@ class PeriodEdit extends React.Component {
           let date = new Date()
           let code = document.querySelector('#code input').value
           let stime = new Date(document.querySelector('#stime input').value)
-          stime.setTime(stime.getTime()-(60000*date.getTimezoneOffset()))
           let etime = new Date(document.querySelector('#etime input').value)
-          console.log(etime.getTime())
-          etime.setTime(etime.getTime()-(60000*date.getTimezoneOffset()))
 
-          let csv = `code,stime,etime\n${code},${stime/1000},${etime/1000}`
+          let csv = `code,stime,etime\n${code},${stime.getTime()/1000},${etime.getTime()/1000}`
 
-          fetch(`https://api.edustream.live/admin/import/periods/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`, {
+          fetch(`https://${API_URL}/admin/import/periods/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`, {
             method: "PUT",
             body: csv
           }).then(response => response.json()).then(data => {
@@ -780,16 +843,24 @@ class PeriodEdit extends React.Component {
             <InputGroup.Prepend>
               <InputGroup.Text>Start Time</InputGroup.Text>
             </InputGroup.Prepend>
-            <FormControl type="datetime-local" defaultValue={new Date(this.props.period.stime * 1000).toISOString()} />
+            <FormControl type="datetime-local" defaultValue={new Date((this.props.period.stime || 0) * 1000).toISOString()} />
           </InputGroup>
           <InputGroup id="etime">
             <InputGroup.Prepend>
               <InputGroup.Text>End Time</InputGroup.Text>
             </InputGroup.Prepend>
-            <FormControl type="datetime-local" defaultValue={new Date(this.props.period.stime * 1000).toISOString()} />
+            <FormControl type="datetime-local" defaultValue={new Date((this.props.period.stime || 0) * 1000).toISOString()} />
           </InputGroup>
 
           <Button onClick={this.props.closeEdit}>Close</Button>
+            {this.state.period ? <Button variant='danger' onClick={() => {
+              fetch(`https://${API_URL}/admin/delete/periods/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&id=${this.state.period.id}`).then(data => data.json()).then(output => {
+                if(!output.status) {
+                  this.props.history.push('/auth')
+                }
+                this.props.closeEdit()
+              })
+            }}>Delete Period</Button> : null}
           <Button type="submit">Save Roster Entry</Button>
         </form>
       </div>
@@ -815,7 +886,7 @@ class ImportAuth extends React.Component {
   }
 
   updateAuth() {
-    fetch(`https://api.edustream.live/admin/read/auth/?sid=${window.localStorage.getItem('sid')}&session=${this.state.session}`).then(data => data.json()).then(output => {
+    fetch(`https://${API_URL}/admin/read/auth/?sid=${window.localStorage.getItem('sid')}&session=${this.state.session}`).then(data => data.json()).then(output => {
       if(!output.status) {
         this.props.history.push('/auth')
       }
@@ -836,12 +907,12 @@ class ImportAuth extends React.Component {
 
     return (
       <Container className="ImportAuth">
-        <Button onClick={() => this.setState({ editPopup: <AuthEdit auth={{}} closeEdit={closeEdit.bind(this)} /> })}>Add Authenitcated User</Button>
+        <Button onClick={() => this.setState({ editPopup: <AuthEdit auth={false} closeEdit={closeEdit.bind(this)} /> })}>Add Authenitcated User</Button>
         <ListGroup>
           {this.state.auth.map((auth, id) => {
             return <div className="auth-list" key={id}><ListGroup.Item action variant="primary" onClick={() => this.setState({
               editPopup: <AuthEdit auth={auth} closeEdit={closeEdit.bind(this)} /> 
-            })}>ID: {auth.pid} Username: {auth.uname}</ListGroup.Item></div>
+            })}>ID: <b>{auth.pid}</b> Username: <b>{auth.uname}</b></ListGroup.Item></div>
           })}
         </ListGroup>
         {this.state.editPopup}
@@ -871,7 +942,7 @@ class AuthEdit extends React.Component {
           let hash = crypto.createHash('sha256')
           hash.update(pword)
 
-          fetch(`https://api.edustream.live/admin/update/auth/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&pid=${pid}`, {
+          fetch(`https://${API_URL}/admin/update/auth/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&pid=${pid}`, {
             method: "POST",
             body: hash.digest('hex')
           }).then(response => response.json()).then(data => {

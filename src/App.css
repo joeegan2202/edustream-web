@@ -37,14 +37,15 @@ a.HeaderAuth {
   cursor: pointer;
 }
 
-.App-header a img {
-  height: 100%;
-  width: 100%;
+.App-header a h1 img {
+  max-height: 100%;
+  max-width: 100%;
 }
 
 .App-header a h1 {
-  height: fit-content;
-  padding: .5em;
+  height: 100%;
+  width: 100%;
+  margin: 0px;
 }
 
 #give-space {

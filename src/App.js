@@ -6,12 +6,12 @@ import Button from 'react-bootstrap/Button'
 import Auth from './Auth'
 import Admin from './Admin'
 import Watch from './Watch'
+import Home from './Home'
 
 class App extends React.Component {
   constructor(props) {
     super(props)
 
-    window.localStorage.setItem('sid', 'fda734d93365f6ac6ced0f3d0c85aad460e1a8fc317c998c15546f6ab3d56f73')
     this.state = {
     }
   }
@@ -21,8 +21,8 @@ class App extends React.Component {
       <Router>
         <div className="App">
           <header className="App-header">
-            <Link to="/" className="HeaderText"><h1>Go home!</h1></Link>
-            {window.sessionStorage.getItem('session') != '' ? <Dropdown>
+            <Link to="/" className="HeaderText"><h1><img src={window.sessionStorage.getItem('bannerURL')}></img></h1></Link>
+            {window.sessionStorage.getItem('session') ? <Dropdown>
               <Dropdown.Toggle as="div" className="HeaderAuth">
                 <img src="/avataricon.svg" alt="Go to Auth!" />
               </Dropdown.Toggle>
@@ -31,7 +31,7 @@ class App extends React.Component {
                   Watch
                 </Dropdown.Item>
                 <Dropdown.Item href="/" onClick={() => {
-                  window.sessionStorage.setItem('session', '')
+                  window.sessionStorage.removeItem('session')
                   this.setState({})
                 }}>Logout</Dropdown.Item>
               </Dropdown.Menu>
@@ -40,7 +40,7 @@ class App extends React.Component {
 
           <Switch>
             <Route exact path="/">
-              <div id="give-space"><h1>Welcome to EduStream! Best school streaming... Ever!</h1></div>
+              <Home />
             </Route>
             <Route exact path="/admin">
               <Admin />
