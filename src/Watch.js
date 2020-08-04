@@ -119,12 +119,12 @@ class Watch extends React.Component {
           <div id="stream-info">
             <h1>Welcome, {this.state.name}!</h1>
             <p>Class: {this.state.cname}<br/>Period: {this.state.period}</p>
-            {this.state.role != "student" ? <ListGroup><b>Attendance ({this.state.attendance.length == 1 ? '1 person in room' : `${this.state.attendance.length} people in room`}):</b>
+            {this.state.role != "student" ? this.state.attendance ? <ListGroup><b>Attendance ({this.state.attendance.length == 1 ? '1 person in room' : `${this.state.attendance.length} people in room`}):</b>
               {this.state.attendance.map((name, index) => {
               return (
                 <ListGroupItem key={index}>{name}</ListGroupItem>
               )})}
-            </ListGroup> : null}
+            </ListGroup> : null : null}
           </div>
         </div>
         <div id="col2">

@@ -8,10 +8,6 @@
   padding-top: calc(10vh + 5em);
 }
 
-.container {
-  margin: 1em;
-}
-
 button.list-group-item {
   word-break: break-all;
 }
@@ -85,6 +81,12 @@ button.list-group-item {
 .ImportPeople {
   padding: 5em;
   padding-top: calc(10vh + 5em);
+}
+
+.Import .form-control {
+  display: block;
+  width: 33%;
+  float: right;
 }
 
 .ImportAuth {

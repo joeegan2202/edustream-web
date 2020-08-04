@@ -175,16 +175,43 @@ class Camera extends React.Component {
     clearInterval(this.updateTimer)
   }
 
+  lockAll(cameras) {
+    if(!cameras.length) return
+    fetch(`https://${API_URL}/admin/lock/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&cameraID=${cameras[0].id}`).then(() => {
+      this.lockAll(cameras.slice(1))
+    })
+  }
+
+  unlockAll(cameras) {
+    if(!cameras.length) return
+    fetch(`https://${API_URL}/admin/unlock/camera/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}&cameraID=${cameras[0].id}`).then(() => {
+      this.unlockAll(cameras.slice(1))
+    })
+  }
+
+  onSearch(element) {
+    let search = element.target.value
+    this.state.cameras.forEach(camera => {
+      camera.levDist = [levDist(camera.id, search), levDist(camera.room, search), levDist(camera.address, search)].sort()[0]
+    })
+    this.state.cameras.sort((c1, c2) => c1.levDist - c2.levDist)
+    this.setState({})
+  }
+
   render() {
     let closeEdit = () => {
       this.setState({ editPopup: null })
       this.updateCameras()
     }
+
     return (
-      <Container className="Admin-Camera">
+      <Container className="Admin-Camera Import">
         <Button onClick={() => this.setState({ editPopup: <CameraEdit camera={false} closeEdit={closeEdit.bind(this)} /> })}>Add Camera</Button>
         <Button variant="success" onClick={() => fetch(`https://${API_URL}/admin/start/all/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`)}>Start Unlocked Cameras</Button>
         <Button variant="danger" onClick={() => fetch(`https://${API_URL}/admin/stop/all/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`)}>Stop Unlocked Cameras</Button>
+        <Button variant="warning" onClick={this.lockAll.bind(this, this.state.cameras.filter(camera => !camera.locked))}>Lock All Cameras</Button>
+        <Button variant="light" onClick={this.unlockAll.bind(this, this.state.cameras.filter(camera => camera.locked))}>Unlock All Cameras</Button>
+        <input className="form-control" placeholder="Search" onChange={this.onSearch.bind(this)}></input>
         <ListGroup>
           {this.state.cameras.map((camera, id) => {
             return <div className="list" key={id}><ListGroup.Item action variant="primary" onClick={() => this.setState({ editPopup: <CameraEdit camera={camera} closeEdit={closeEdit.bind(this)} /> })}>Room #: <b>{camera.room}</b> Address: <b>{camera.address}</b></ListGroup.Item>
@@ -382,6 +409,15 @@ class ImportPeople extends React.Component {
     this.updatePeople()
   }
 
+  onSearch(element) {
+    let search = element.target.value
+    this.state.people.forEach(person => {
+      person.levDist = [levDist(person.id, search), levDist(person.uname, search), levDist(person.fname, search), levDist(person.lname, search)].sort()[0]
+    })
+    this.state.people.sort((p1, p2) => p1.levDist - p2.levDist)
+    this.setState({})
+  }
+
   render() {
     let closeEdit = () => {
       this.setState({ editPopup: null })
@@ -389,8 +425,9 @@ class ImportPeople extends React.Component {
     }
 
     return (
-      <Container className="ImportPeople">
+      <Container className="ImportPeople Import">
         <Button onClick={() => this.setState({ editPopup: <PersonEdit person={false} closeEdit={closeEdit.bind(this)} /> })}>Add Person</Button>
+        <input className="form-control" placeholder="Search" onChange={this.onSearch.bind(this)}></input>
         <ListGroup>
           {this.state.people.map((person, id) => {
             return <div className="person-list" key={id}><ListGroup.Item action variant="primary" onClick={() => this.setState({
@@ -517,6 +554,15 @@ class ImportClasses extends React.Component {
     this.updateClasses()
   }
 
+  onSearch(element) {
+    let search = element.target.value
+    this.state.classes.forEach(course => {
+      course.levDist = [levDist(course.id, search), levDist(course.name, search), levDist(course.room, search)].sort()[0]
+    })
+    this.state.classes.sort((c1, c2) => c1.levDist - c2.levDist)
+    this.setState({})
+  }
+
   render() {
     let closeEdit = () => {
       this.setState({ editPopup: null })
@@ -526,6 +572,7 @@ class ImportClasses extends React.Component {
     return (
       <Container className="Import ImportClasses">
         <Button onClick={() => this.setState({ editPopup: <ClassEdit course={false} closeEdit={closeEdit.bind(this)} /> })}>Add Class</Button>
+        <input className="form-control" placeholder="Search" onChange={this.onSearch.bind(this)}></input>
         <ListGroup>
           {this.state.classes.map((course, id) => {
             return <div className="List ClassList" key={id}><ListGroup.Item action variant="primary" onClick={() => this.setState({
@@ -899,6 +946,15 @@ class ImportAuth extends React.Component {
     this.updateAuth()
   }
 
+  onSearch(element) {
+    let search = element.target.value
+    this.state.auth.forEach(auth => {
+      auth.levDist = [levDist(auth.pid, search), levDist(auth.uname, search)].sort()[0]
+    })
+    this.state.auth.sort((a1, a2) => a1.levDist - a2.levDist)
+    this.setState({})
+  }
+
   render() {
     let closeEdit = () => {
       this.setState({ editPopup: null })
@@ -906,8 +962,9 @@ class ImportAuth extends React.Component {
     }
 
     return (
-      <Container className="ImportAuth">
+      <Container className="ImportAuth Import">
         <Button onClick={() => this.setState({ editPopup: <AuthEdit auth={false} closeEdit={closeEdit.bind(this)} /> })}>Add Authenitcated User</Button>
+        <input className="form-control" placeholder="Search" onChange={this.onSearch.bind(this)}></input>
         <ListGroup>
           {this.state.auth.map((auth, id) => {
             return <div className="auth-list" key={id}><ListGroup.Item action variant="primary" onClick={() => this.setState({
