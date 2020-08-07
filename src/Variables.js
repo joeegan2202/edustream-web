@@ -1,1 +1,1 @@
-export let API_URL = `stagapi.edustream.live`
+export let API_URL = `api.edustream.live`

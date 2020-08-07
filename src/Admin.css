@@ -86,7 +86,6 @@ button.list-group-item {
 .Import .form-control {
   display: block;
   width: 33%;
-  float: right;
 }
 
 .ImportAuth {

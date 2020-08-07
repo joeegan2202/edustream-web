@@ -7,6 +7,7 @@ import Auth from './Auth'
 import Admin from './Admin'
 import Watch from './Watch'
 import Home from './Home'
+import './banner.png'
 
 class App extends React.Component {
   constructor(props) {
@@ -21,7 +22,7 @@ class App extends React.Component {
       <Router>
         <div className="App">
           <header className="App-header">
-            <Link to="/" className="HeaderText"><h1><img src={window.sessionStorage.getItem('bannerURL')}></img></h1></Link>
+            <Link to="/" className="HeaderText"><h1><img src={window.sessionStorage.getItem('bannerURL') || "banner.png"}></img></h1></Link>
             {window.sessionStorage.getItem('session') ? <Dropdown>
               <Dropdown.Toggle as="div" className="HeaderAuth">
                 <img src="/avataricon.svg" alt="Go to Auth!" />
