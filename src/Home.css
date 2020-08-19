@@ -1,0 +1,26 @@
+section, footer {
+    margin: 2em;
+}
+
+.home h1 {
+    font-family: "Cousine", monospaced;
+}
+
+#help {
+    padding: 5em;
+    margin-top: 3em;
+    margin-bottom: 3em;
+}
+
+h4 {
+    font-family: "Noto Sans", Arial, sans-serif;
+}
+
+section {
+    background-color: #DDD;
+    padding: 3em;
+}
+
+section h3 {
+    font-weight: bold;
+}

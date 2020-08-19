@@ -11,8 +11,6 @@ class StreamPlayer extends React.Component {
 
     let session = window.sessionStorage.getItem('session')
 
-    console.log(this.props)
-
     this.state = {
       session,
       source: `https://${API_URL}/stream/${this.props.streamPath}/stream.m3u8`,
@@ -20,19 +18,19 @@ class StreamPlayer extends React.Component {
     }
   }
 
-  componentDidMount() {
+  startStream() {
     var video = document.querySelector('video');
     if (Hls.isSupported()) {
       let hls = new Hls();
-      console.log("HLS is supported")
       hls.loadSource(this.state.source);
       hls.attachMedia(video);
       hls.on(Hls.Events.MANIFEST_PARSED, function () {
-        console.log("Attached!")
         video.play()
       });
-      hls.on(Hls.Events.ERROR, function (event, data) {
-        console.log(data)
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        if(data.fatal) {
+          setTimeout(this.startStream.bind(this), 1000)
+        }
       });
 
       this.setState({ hls })
@@ -46,10 +44,15 @@ class StreamPlayer extends React.Component {
     }
   }
 
+  componentDidMount() {
+    this.startStream()
+  }
+
   componentWillUnmount() {
     if (this.state.hls) {
       this.state.hls.destroy()
     }
+    document.querySelector('video').src=null
   }
 
   render() {
@@ -61,7 +64,9 @@ class StreamPlayer extends React.Component {
             {error.message}
           </Alert>
         ))}
-        <video controls></video>
+        {this.props.role === 'teacher' ? 
+        <video controls mute poster="banner.png"></video> :
+        <video controls poster="/banner.png"></video>}
       </div>
     )
   }

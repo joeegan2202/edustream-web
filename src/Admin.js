@@ -365,7 +365,14 @@ class Import extends React.Component {
             history.push('/admin/import/periods')
           }}>Edit Manually</Button>
         </form>
-        <form>
+        <form onSubmit={e => {
+          e.preventDefault()
+          console.log(document.querySelector('#authfile').files[0])
+          fetch(`https://${API_URL}/admin/import/auth/?sid=${window.localStorage.getItem('sid')}&session=${window.sessionStorage.getItem('session')}`, {
+            method: 'PUT',
+            body: document.querySelector('#authfile').files[0]
+          })
+        }}>
           <label>Authenticated Users</label>
           <input type="file" id="authfile"></input>
           <Button type="submit">Submit Form</Button>

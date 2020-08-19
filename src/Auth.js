@@ -83,7 +83,7 @@ class Auth extends React.Component {
                 <InputGroup.Prepend>
                   <InputGroup.Text>Username</InputGroup.Text>
                 </InputGroup.Prepend>
-                <FormControl placeholder="Username" />
+                <FormControl placeholder="Username" autoCapitalize="off" />
               </InputGroup>
               <InputGroup id="pword">
                 <InputGroup.Prepend>

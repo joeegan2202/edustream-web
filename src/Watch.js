@@ -115,7 +115,7 @@ class Watch extends React.Component {
             </div>
             )})() : null}
         <div id="col1">
-          <StreamPlayer streamPath={this.state.streamPath}></StreamPlayer>
+          <StreamPlayer role={this.state.role} streamPath={this.state.streamPath}></StreamPlayer>
           <div id="stream-info">
             <h1>Welcome, {this.state.name}!</h1>
             <p>Class: {this.state.cname}<br/>Period: {this.state.period}</p>
